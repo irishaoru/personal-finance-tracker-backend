@@ -4,3 +4,5 @@ python-dotenv>=1.1,<2
 plaid-python>=30,<40
 certifi>=2025.1.31
 gunicorn>=23,<24
+SQLAlchemy>=2.0,<2.1
+psycopg[binary]>=3.2,<4

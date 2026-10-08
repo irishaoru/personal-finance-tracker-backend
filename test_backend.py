@@ -3,7 +3,9 @@ from datetime import date
 import unittest
 from unittest.mock import Mock, patch
 
-import app
+with patch.dict('os.environ', {'DATABASE_URL': 'sqlite:///:memory:'}):
+    import app
+from database import TransactionStore
 from plaid_service import PlaidService
 
 
@@ -15,6 +17,11 @@ class BackendTests(unittest.TestCase):
         self.patcher.start()
         self.addCleanup(self.patcher.stop)
         self.client = app.app.test_client()
+        self.store = TransactionStore('sqlite:///:memory:')
+        store_patch = patch.object(app, 'store', self.store)
+        store_patch.start()
+        self.addCleanup(store_patch.stop)
+        self.addCleanup(self.store.engine.dispose)
 
     def test_missing_credentials(self):
         self.service.client = None
@@ -34,7 +41,7 @@ class BackendTests(unittest.TestCase):
         self.assertEqual(self.service.access_token, 'test-token-never-returned')
 
     def test_connection_and_date_validation(self):
-        self.assertEqual(self.client.get('/api/transactions').status_code, 409)
+        self.assertEqual(self.client.post('/api/transactions/import').status_code, 409)
         self.service.access_token = 'test-token'
         for query in ['start_date=bad', 'start_date=2026-02-30',
                       'start_date=2026-03-02&end_date=2026-03-01']:
