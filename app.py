@@ -83,7 +83,7 @@ def transaction_counts():
             plaid_count += 1
         elif record['source'] == 'manual':
             manual_count += 1
-        return jsonify(plaid_count=plaid_count, manual_count=manual_count, total_transactions=len(records))
+    return jsonify(plaid_count=plaid_count, manual_count=manual_count, total_transactions=len(records))
 
 def transaction_dates(importing=False):
     start_text = request.args.get('start_date')
