@@ -73,6 +73,17 @@ def transactions():
     records = store.list_transactions(start, end)
     return jsonify(transactions=records, total_transactions=len(records))
 
+@app.get('/api/transactions/counts')
+def transaction_counts():
+    records = store.list_transactions()
+    plaid_count = 0
+    manual_count = 0
+    for record in records:
+        if record['source'] == 'plaid':
+            plaid_count += 1
+        elif record['source'] == 'manual':
+            manual_count += 1
+        return jsonify(plaid_count=plaid_count, manual_count=manual_count, total_transactions=len(records))
 
 def transaction_dates(importing=False):
     start_text = request.args.get('start_date')
